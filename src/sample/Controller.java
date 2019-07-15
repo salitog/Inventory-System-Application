@@ -145,7 +145,7 @@ public class Controller implements Initializable {
         modelText.setPrefWidth(180);
         modelText.relocate(160 ,60);
 
-        //<editor-fold desc="MakeBox">
+        //<editor-fold desc="makeBox">
         JFXComboBox makeBox = new JFXComboBox();
         ObservableList<String> makeList = FXCollections.observableArrayList("Nissan", "Toyota", "Honda",
                 "Jeep", "Ford", "Mazda", "Mitsubishi", "BMW", "Lexus", "Otra");
