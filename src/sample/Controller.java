@@ -26,6 +26,7 @@ import javafx.util.Callback;
 
 import javax.swing.*;
 import java.net.URL;
+import java.sql.SQLOutput;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -103,13 +104,7 @@ public class Controller implements Initializable {
         });
 
         ObservableList<Part> users = FXCollections.observableArrayList();
-        users.add(new Part("Nissan", "Rogue", "2019", "123456789|123456789|123456789|123456789|123456789|", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
-        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+
 
         final TreeItem<Part> root = new RecursiveTreeItem<Part>(users, RecursiveTreeObject::getChildren);
         treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn);
@@ -144,6 +139,12 @@ public class Controller implements Initializable {
         modelText.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
         modelText.setPrefWidth(180);
         modelText.relocate(160 ,60);
+
+        JFXTextField yearText = new JFXTextField();
+        yearText.setPromptText("Año");
+        yearText.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        yearText.setPrefWidth(80);
+        yearText.relocate(360 ,15);
 
         //<editor-fold desc="makeBox">
         JFXComboBox makeBox = new JFXComboBox();
@@ -202,10 +203,29 @@ public class Controller implements Initializable {
         quantityField.relocate(300, 100);
         //</editor-fold>
 
+        //<editor-fold desc="conditionField">
+        JFXTextField conditionField = new JFXTextField();
+        conditionField.setPromptText("Condición");
+        conditionField.setStyle("-jfx-lable-float: true;" + "-jfx-focus-color: #ffa929;" + "-jfx-unfocus-color: #0b6599;");
+        conditionField.relocate(10, 190);
+        //</editor-fold>
+
+        //<editor-fold desc="locationField">
+        ObservableList locations = FXCollections.observableArrayList("Bodega de Autolote", "Taller de Elias");
+        JFXComboBox locationBox = new JFXComboBox();
+        locationBox.setItems(locations);
+        locationBox.setPromptText("Ubicación");
+        locationBox.setStyle("-jfx-lable-float: true;" + "-jfx-focus-color: #ffa929;" + "-jfx-unfocus-color: #0b6599;");
+        locationBox.relocate(225 ,190);
+
+        //</editor-fold>
+
         //<editor-fold desc="Setup">
-        dialogPanel.getChildren().addAll(makeBox, modelBox, yearBox, descriptionField, quantityField, makeText, modelText); //Add a part to the panel
+        dialogPanel.getChildren().addAll(makeBox, modelBox, yearBox, descriptionField, quantityField, makeText, modelText,
+                                         conditionField, locationBox, yearText); //Add a part to the panel
         makeText.setVisible(false);
         modelText.setVisible(false);
+        yearText.setVisible(false);
 
         makeBox.setOnAction(e -> {
             String make = makeBox.getValue().toString();
@@ -263,8 +283,46 @@ public class Controller implements Initializable {
             }
         });
 
+        modelBox.setOnAction(x -> {
+            if (modelBox.getValue() == "Otro"){
+                modelBox.setDisable(true);
+                modelText.setVisible(true);
+            }
+        });
+
+        yearBox.setOnAction(x -> {
+            if (yearBox.getValue() == "Otro"){
+                yearBox.setVisible(false);
+                yearText.setVisible(true);
+            }
+        });
+
         JFXDialog dialog = new JFXDialog(pnl_addPart, dialogLayout, JFXDialog.DialogTransition.TOP);
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent)->{
+            String make, model, year = "", desc = "", quant = "", condition = "", loc = "";
+
+            if (makeBox.getValue() == "Otra"){
+                make = makeText.getText();
+                model = modelText.getText();
+            } else {
+                make = makeBox.getValue().toString();
+                if (modelBox.getValue() == "Otro"){
+                    model = modelText.getText();
+                } else {
+                    model = modelBox.getValue().toString();
+                }
+
+                if (yearBox.getValue() == "Otro"){
+                    year = yearText.getText();
+                } else {
+                    year = yearBox.getValue().toString();
+                }
+                desc = descriptionField.getText();
+                quant = quantityField.getText();
+                condition = conditionField.getText();
+                loc = locationBox.getValue().toString();
+            }
+
             rootPane.setEffect(null);
             dialog.close();
         });
