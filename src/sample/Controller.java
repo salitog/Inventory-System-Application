@@ -21,12 +21,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import javax.swing.*;
+import java.io.*;
 import java.net.URL;
 import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -48,7 +52,9 @@ public class Controller implements Initializable {
     @FXML
     private JFXTreeTableView<Part> treeView;
 
-    public void viewInventory(ActionEvent event){
+    ObservableList<Part> users = FXCollections.observableArrayList();
+
+    public void viewInventory(ActionEvent event)  {
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
         makeColumn.setPrefWidth(150);
         makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
@@ -103,8 +109,9 @@ public class Controller implements Initializable {
             }
         });
 
-        ObservableList<Part> users = FXCollections.observableArrayList();
+        //<editor-fold desc="Temporary Text File ">
 
+        //</editor-fold>
 
         final TreeItem<Part> root = new RecursiveTreeItem<Part>(users, RecursiveTreeObject::getChildren);
         treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn);
@@ -115,7 +122,6 @@ public class Controller implements Initializable {
     }
 
     public void addPart(ActionEvent event){
-        System.out.println(javafx.scene.text.Font.getFamilies());
         BoxBlur blur = new BoxBlur(3, 3 , 3);
 
         JFXDialogLayout dialogLayout = new JFXDialogLayout();
@@ -298,6 +304,9 @@ public class Controller implements Initializable {
         });
 
         JFXDialog dialog = new JFXDialog(pnl_addPart, dialogLayout, JFXDialog.DialogTransition.TOP);
+        System.out.println(javafx.scene.text.Font.getFamilies());
+        Label heading = new Label("Agregar una parte al inventario");
+        int counter = 0;
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent)->{
             String make, model, year = "", desc = "", quant = "", condition = "", loc = "";
 
@@ -323,13 +332,14 @@ public class Controller implements Initializable {
                 loc = locationBox.getValue().toString();
             }
 
+            users.add(new Part(make, model, year, desc, quant, condition, loc));
+
             rootPane.setEffect(null);
             dialog.close();
         });
 
-        Label heading = new Label("Agregar una parte al inventario");
-
-        heading.setStyle("-fx-font-size: 25;"+ "-fx-text-fill: white;"+ "-fx-font-weight: bold;"+ "-fx-font: Abel Font;"+ "-fx-font-family: Abel Font;");
+        heading.setFont(Font.font("Helvetica Neue", 25));
+        heading.setStyle("-fx-text-fill: #e6edf7;");
 
         dialogLayout.setStyle("-fx-background-color: #999999");
         dialogLayout.setHeading(heading);
@@ -385,6 +395,20 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
+
+        StringBuilder sb = new StringBuilder();
+        File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = reader.readLine()) != null){
+                sb.append(line).append("\n");
+            }
+        } catch (IOException ex){
+
+        }
+        System.out.println(sb);
+
         pnl_idle.toFront();
         pnl_options.toFront();
         pnl_sideBar.toFront();
@@ -398,14 +422,16 @@ public class Controller implements Initializable {
         StringProperty description;
         StringProperty quantity;
         StringProperty condition;
+        StringProperty location;
 
-        public Part(String make, String model, String year, String description, String quantity, String condition){
+        public Part(String make, String model, String year, String description, String quantity, String condition, String location){
             this.make = new SimpleStringProperty(make);
             this.model = new SimpleStringProperty(model);
             this.year = new SimpleStringProperty(year);
             this.description = new SimpleStringProperty(description);
             this.quantity = new SimpleStringProperty(quantity);
             this.condition = new SimpleStringProperty(condition);
+            this.location = new SimpleStringProperty(location);
         }
 
     }
