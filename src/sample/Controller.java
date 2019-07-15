@@ -1,0 +1,354 @@
+package sample;
+
+import com.jfoenix.controls.*;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+
+import com.jfoenix.controls.events.JFXDialogEvent;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.util.Callback;
+
+import javax.swing.*;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class Controller implements Initializable {
+
+    // Declaration of variables and components
+    @FXML
+    private Pane pnl_options, pnl_inv, pnl_list, pnl_idle, pnl_sideBar, pnl_idleInv, pnl_viewInv,
+            pnl_inv_topBar, pnl_remPart, pnl_test;
+
+    @FXML
+    private StackPane pnl_addPart;
+
+    @FXML
+    private AnchorPane rootPane;
+
+    @FXML
+    private JFXButton btn_inv, btn_list, btn_home, btn_viewInv, btn_addPart, btn_revPart, btn_search;
+
+    @FXML
+    private JFXTreeTableView<Part> treeView;
+
+    public void viewInventory(ActionEvent event){
+        JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
+        makeColumn.setPrefWidth(150);
+        makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().make;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>("Modelo");
+        modelColumn.setPrefWidth(150);
+        modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().model;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
+        yearColumn.setPrefWidth(50);
+        yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().year;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
+        descriptionColumn.setPrefWidth(400);
+        descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().description;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> quantityColumn = new JFXTreeTableColumn<>("Cantidad");
+        quantityColumn.setPrefWidth(100);
+        quantityColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().quantity;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> conditionColumn = new JFXTreeTableColumn<>("Condicion");
+        conditionColumn.setPrefWidth(150);
+        conditionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().condition;
+            }
+        });
+
+        ObservableList<Part> users = FXCollections.observableArrayList();
+        users.add(new Part("Nissan", "Rogue", "2019", "123456789|123456789|123456789|123456789|123456789|", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+        users.add(new Part("Nissan", "Rogue", "2019", "Guardafango Derecho", "2", "Bueno"));
+
+        final TreeItem<Part> root = new RecursiveTreeItem<Part>(users, RecursiveTreeObject::getChildren);
+        treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn);
+        treeView.setRoot(root);
+        treeView.setShowRoot(false);
+        pnl_viewInv.toFront();
+        pnl_inv_topBar.toFront();
+    }
+
+    public void addPart(ActionEvent event){
+        System.out.println(javafx.scene.text.Font.getFamilies());
+        BoxBlur blur = new BoxBlur(3, 3 , 3);
+
+        JFXDialogLayout dialogLayout = new JFXDialogLayout();
+
+        JFXButton button = new JFXButton("Continuar");
+        button.setButtonType(JFXButton.ButtonType.RAISED);
+        button.setStyle("-fx-background-color: #26a633;");
+
+        Pane dialogPanel = new Pane();
+        dialogPanel.setPrefSize(500, 600);
+        dialogPanel.setStyle("-fx-background-color: #999999");
+
+        JFXTextField makeText = new JFXTextField();
+        makeText.setPromptText("Marca");
+        makeText.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        makeText.setPrefWidth(120);
+        makeText.relocate(10, 60);
+
+        JFXTextField modelText = new JFXTextField();
+        modelText.setPromptText("Modelo");
+        modelText.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        modelText.setPrefWidth(180);
+        modelText.relocate(160 ,60);
+
+        //<editor-fold desc="MakeBox">
+        JFXComboBox makeBox = new JFXComboBox();
+        ObservableList<String> makeList = FXCollections.observableArrayList("Nissan", "Toyota", "Honda",
+                "Jeep", "Ford", "Mazda", "Mitsubishi", "BMW", "Lexus", "Otra");
+        makeBox.setItems(makeList);
+        makeBox.setPromptText("Marca");
+        makeBox.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        makeBox.relocate(10, 15);
+        //</editor-fold>
+
+        //<editor-fold desc="modelBox">
+        ObservableList<String> nissanList = FXCollections.observableArrayList("Pathfinder", "Rogue", "Murano", "Frontier", "Armada", "Otro");
+        ObservableList<String> toyotaList = FXCollections.observableArrayList("4Runner", "Rav4", "Corolla", "Yaris", "IM", "Highlander", "Otro");
+        ObservableList<String> hondaList = FXCollections.observableArrayList("CR-V", "HR-C", "Civic", "Pilot", "Otro");
+        ObservableList<String> jeepList = FXCollections.observableArrayList("Cherokee", "Compass", "Grand Cherokee", "Renegade", "Otro");
+        ObservableList<String> fordList = FXCollections.observableArrayList("Ranger", "Explorer", "Escape", "Otro");
+        ObservableList<String> mazdaList = FXCollections.observableArrayList("CX-5", "CX-7", "CX-9", "CX-3", "3", "Otro");
+        ObservableList<String> mitsubishiList = FXCollections.observableArrayList("Outlander", "Outlander Sport", "Endevour", "Otro");
+        ObservableList<String> bmwList = FXCollections.observableArrayList("328", "X3", "X5", "Otro");
+        ObservableList<String> lexusList = FXCollections.observableArrayList("RX-350", "GX-470", "Otro");
+
+
+        JFXComboBox modelBox = new JFXComboBox();
+        modelBox.setPromptText("Seleccione el modelo");
+        modelBox.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        modelBox.relocate(160, 15);
+        //</editor-fold>
+
+        //<editor-fold desc="yearBox">
+        JFXComboBox yearBox = new JFXComboBox();
+        ObservableList<String> yearList = FXCollections.observableArrayList("2020", "2019", "2018",
+                "2017", "2016", "2015", "Otro");
+        yearBox.setItems(yearList);
+        yearBox.setPromptText("Año");
+        yearBox.setPrefWidth(80);
+        yearBox.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        yearBox.relocate(360, 15);
+        //</editor-fold>
+
+        //<editor-fold desc="descriptionField">
+        JFXTextField descriptionField = new JFXTextField();
+        descriptionField.setPromptText("Descripción");
+        descriptionField.setStyle("-jfx-label-float: true;"+ "-jfx-focus-color: #ffa929;"+ "-jfx-unfocus-color:  #0b6599;");
+        descriptionField.setPrefWidth(250);
+        descriptionField.relocate(10, 100);
+        //</editor-fold>
+
+        //<editor-fold desc="quantityField">
+        JFXTextField quantityField = new JFXTextField();
+        quantityField.setPromptText("Cantidad");
+        quantityField.setStyle("-jfx-label-float: true;"+
+                               "-jfx-focus-color: #ffa929;"+
+                               "-jfx-unfocus-color:  #0b6599;");
+        quantityField.setPrefWidth(60);
+        quantityField.relocate(300, 100);
+        //</editor-fold>
+
+        //<editor-fold desc="Setup">
+        dialogPanel.getChildren().addAll(makeBox, modelBox, yearBox, descriptionField, quantityField, makeText, modelText); //Add a part to the panel
+        makeText.setVisible(false);
+        modelText.setVisible(false);
+
+        makeBox.setOnAction(e -> {
+            String make = makeBox.getValue().toString();
+            if (make.equals("Nissan")){
+                modelBox.setDisable(false);
+                modelBox.setItems(nissanList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Toyota")){
+                modelBox.setDisable(false);
+                modelBox.setItems(toyotaList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Honda")){
+                modelBox.setDisable(false);
+                modelBox.setItems(hondaList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Jeep")){
+                modelBox.setDisable(false);
+                modelBox.setItems(jeepList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Ford")){
+                modelBox.setDisable(false);
+                modelBox.setItems(fordList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Mazda")){
+                modelBox.setDisable(false);
+                modelBox.setItems(mazdaList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Mitsubishi")){
+                modelBox.setDisable(false);
+                modelBox.setItems(mitsubishiList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("BMW")){
+                modelBox.setDisable(false);
+                modelBox.setItems(bmwList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Lexus")){
+                modelBox.setDisable(false);
+                modelBox.setItems(lexusList);
+                makeText.setVisible(false);
+                modelText.setVisible(false);
+            } else if (make.equals("Otra")){
+                modelBox.setDisable(true);
+                makeText.setVisible(true);
+                modelText.setVisible(true);
+                modelText.clear();
+                makeText.clear();
+            }
+        });
+
+        JFXDialog dialog = new JFXDialog(pnl_addPart, dialogLayout, JFXDialog.DialogTransition.TOP);
+        button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent)->{
+            rootPane.setEffect(null);
+            dialog.close();
+        });
+
+        Label heading = new Label("Agregar una parte al inventario");
+
+        heading.setStyle("-fx-font-size: 25;"+ "-fx-text-fill: white;"+ "-fx-font-weight: bold;"+ "-fx-font: Abel Font;"+ "-fx-font-family: Abel Font;");
+
+        dialogLayout.setStyle("-fx-background-color: #999999");
+        dialogLayout.setHeading(heading);
+        dialogLayout.setBody(dialogPanel);
+        dialogLayout.setActions(button);
+        dialogLayout.setPrefSize(500, 600);
+        pnl_addPart.setVisible(true);
+        pnl_addPart.toFront();
+        dialog.show();
+        dialog.setOnDialogClosed((JFXDialogEvent event1)->{
+            rootPane.setEffect(null);
+        });
+        rootPane.setEffect(blur);
+        //</editor-fold>
+    }
+
+    public void removePart(ActionEvent event){
+        pnl_remPart.toFront();
+        pnl_inv_topBar.toFront();
+    }
+
+    public void searchPart(ActionEvent event){
+
+    }
+
+    // Change the RH panel to whatever function (inventario or lista) is chose
+    public void changeFunction(ActionEvent event){
+        if (event.getSource() == btn_inv){
+            pnl_options.setVisible(false);
+            pnl_idle.setVisible(false);
+            pnl_inv.toFront();
+            pnl_idleInv.toFront();
+            pnl_inv_topBar.toFront();
+            pnl_sideBar.toFront();
+        } else if (event.getSource() == btn_list){
+            pnl_options.setVisible(false);
+            pnl_idle.setVisible(false);
+            pnl_list.toFront();
+            pnl_sideBar.toFront();
+        }
+    }
+
+    // Take the user back to the homepage
+    public void home(ActionEvent event){
+        if (event.getSource() == btn_home) {
+            pnl_idle.setVisible(true);
+            pnl_options.setVisible(true);
+            pnl_idle.toFront();
+            pnl_options.toFront();
+            pnl_sideBar.toFront();
+        }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb){
+        pnl_idle.toFront();
+        pnl_options.toFront();
+        pnl_sideBar.toFront();
+    }
+
+    class Part extends RecursiveTreeObject<Part> {
+
+        StringProperty make;
+        StringProperty model;
+        StringProperty year;
+        StringProperty description;
+        StringProperty quantity;
+        StringProperty condition;
+
+        public Part(String make, String model, String year, String description, String quantity, String condition){
+            this.make = new SimpleStringProperty(make);
+            this.model = new SimpleStringProperty(model);
+            this.year = new SimpleStringProperty(year);
+            this.description = new SimpleStringProperty(description);
+            this.quantity = new SimpleStringProperty(quantity);
+            this.condition = new SimpleStringProperty(condition);
+        }
+
+    }
+}
