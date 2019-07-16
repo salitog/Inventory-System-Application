@@ -333,6 +333,18 @@ public class Controller implements Initializable {
             }
 
             users.add(new Part(make, model, year, desc, quant, condition, loc));
+            File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
+            try{
+                FileWriter writer = new FileWriter(file);
+
+                writer.write(make);
+                writer.write(model);
+                writer.write(year);
+                writer.write(desc);
+                writer.write(quant);
+                writer.write(condition);
+                writer.write(loc);
+            } catch (IOException e){}
 
             rootPane.setEffect(null);
             dialog.close();
@@ -396,18 +408,24 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb){
 
-        StringBuilder sb = new StringBuilder();
         File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
         try{
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
+            int counter = 0;
+            ArrayList<String> temp = new ArrayList<>();
             while ((line = reader.readLine()) != null){
-                sb.append(line).append("\n");
+                temp.add(line);
+                counter++;
             }
-        } catch (IOException ex){
-
-        }
-        System.out.println(sb);
+            for (int i = 0; i < counter/7; i++){
+                String[] tempInfo = new String[7];
+                for (int x = 0; x < 7; x++){
+                    tempInfo[x] = temp.get(x + (7 * i));
+                }
+                users.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6]));
+            }
+        } catch (IOException ex){ }
 
         pnl_idle.toFront();
         pnl_options.toFront();
