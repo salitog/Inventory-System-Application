@@ -12,7 +12,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -22,15 +21,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.util.Callback;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.URL;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -38,7 +34,7 @@ public class Controller implements Initializable {
     // Declaration of variables and components
     @FXML
     private Pane pnl_options, pnl_inv, pnl_list, pnl_idle, pnl_sideBar, pnl_idleInv, pnl_viewInv,
-            pnl_inv_topBar, pnl_remPart, pnl_test;
+            pnl_inv_topBar, pnl_remPart, pnl_search;
 
     @FXML
     private StackPane pnl_addPart;
@@ -52,7 +48,14 @@ public class Controller implements Initializable {
     @FXML
     private JFXTreeTableView<Part> treeView;
 
+    @FXML
+    private JFXTreeTableView<Part> searchTree;
+
+    @FXML
+    private JFXTextField searchBar;
+
     ObservableList<Part> users = FXCollections.observableArrayList();
+    ObservableList<Part> searchResults = FXCollections.observableArrayList();
 
     public void viewInventory(ActionEvent event)  {
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
@@ -109,10 +112,6 @@ public class Controller implements Initializable {
             }
         });
 
-        //<editor-fold desc="Temporary Text File ">
-
-        //</editor-fold>
-
         final TreeItem<Part> root = new RecursiveTreeItem<Part>(users, RecursiveTreeObject::getChildren);
         treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn);
         treeView.setRoot(root);
@@ -128,7 +127,9 @@ public class Controller implements Initializable {
 
         JFXButton button = new JFXButton("Continuar");
         button.setButtonType(JFXButton.ButtonType.RAISED);
+        button.setPrefSize(200, 50);
         button.setStyle("-fx-background-color: #26a633;");
+        button.relocate(10,10);
 
         Pane dialogPanel = new Pane();
         dialogPanel.setPrefSize(500, 600);
@@ -165,7 +166,7 @@ public class Controller implements Initializable {
         //<editor-fold desc="modelBox">
         ObservableList<String> nissanList = FXCollections.observableArrayList("Pathfinder", "Rogue", "Murano", "Frontier", "Armada", "Otro");
         ObservableList<String> toyotaList = FXCollections.observableArrayList("4Runner", "Rav4", "Corolla", "Yaris", "IM", "Highlander", "Otro");
-        ObservableList<String> hondaList = FXCollections.observableArrayList("CR-V", "HR-C", "Civic", "Pilot", "Otro");
+        ObservableList<String> hondaList = FXCollections.observableArrayList("CR-V", "HR-V", "Civic", "Pilot", "Otro");
         ObservableList<String> jeepList = FXCollections.observableArrayList("Cherokee", "Compass", "Grand Cherokee", "Renegade", "Otro");
         ObservableList<String> fordList = FXCollections.observableArrayList("Ranger", "Explorer", "Escape", "Otro");
         ObservableList<String> mazdaList = FXCollections.observableArrayList("CX-5", "CX-7", "CX-9", "CX-3", "3", "Otro");
@@ -304,9 +305,7 @@ public class Controller implements Initializable {
         });
 
         JFXDialog dialog = new JFXDialog(pnl_addPart, dialogLayout, JFXDialog.DialogTransition.TOP);
-        System.out.println(javafx.scene.text.Font.getFamilies());
         Label heading = new Label("Agregar una parte al inventario");
-        int counter = 0;
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent)->{
             String make, model, year = "", desc = "", quant = "", condition = "", loc = "";
 
@@ -335,15 +334,15 @@ public class Controller implements Initializable {
             users.add(new Part(make, model, year, desc, quant, condition, loc));
             File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
             try{
-                FileWriter writer = new FileWriter(file);
-
-                writer.write(make);
-                writer.write(model);
-                writer.write(year);
-                writer.write(desc);
-                writer.write(quant);
-                writer.write(condition);
-                writer.write(loc);
+                PrintWriter log = new PrintWriter(new FileWriter(file, true));
+                log.write(make + "\n");
+                log.write(model + "\n");
+                log.write(year + "\n");
+                log.write(desc + "\n");
+                log.write(quant + "\n");
+                log.write(condition + "\n");
+                log.write(loc + "\n");
+                log.close();
             } catch (IOException e){}
 
             rootPane.setEffect(null);
@@ -357,7 +356,7 @@ public class Controller implements Initializable {
         dialogLayout.setHeading(heading);
         dialogLayout.setBody(dialogPanel);
         dialogLayout.setActions(button);
-        dialogLayout.setPrefSize(500, 600);
+        dialogLayout.setPrefSize(500, 450);
         pnl_addPart.setVisible(true);
         pnl_addPart.toFront();
         dialog.show();
@@ -374,7 +373,133 @@ public class Controller implements Initializable {
     }
 
     public void searchPart(ActionEvent event){
+        searchResults.clear();
 
+        JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
+        makeColumn.setPrefWidth(150);
+        makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().make;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>("Modelo");
+        modelColumn.setPrefWidth(150);
+        modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().model;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
+        yearColumn.setPrefWidth(150);
+        yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().year;
+            }
+        });
+
+        JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
+        descriptionColumn.setPrefWidth(150);
+        descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().description;
+            }
+        });
+
+        final TreeItem<Part> root = new RecursiveTreeItem<Part>(searchResults, RecursiveTreeObject::getChildren);
+        searchTree.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn);
+        searchTree.setRoot(root);
+        searchTree.setShowRoot(false);
+        searchBar.clear();
+        pnl_search.toFront();
+        pnl_inv_topBar.toFront();
+        /* This is for later development (search without pressing enter)
+        searchBar.setOnKeyReleased(e ->{
+            System.out.println(searchBar.getText());
+        });
+        */
+    }
+
+    @FXML
+    public void onEnter(ActionEvent event){
+        searchResults.clear();
+        searchResults.remove(0, searchResults.size()- 1);
+        String keywords = searchBar.getText();
+        ArrayList<String> s1 = new ArrayList<>();
+        for(String w:keywords.split("\\s",0)){
+            s1.add(w);
+        }
+
+        if (s1.size() > 1){
+
+            ObservableList<Part> tempResults = FXCollections.observableArrayList();
+            ArrayList<String> s2 = new ArrayList<>();
+
+            for (int x = 0; x < users.size(); x++){
+                if (users.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(users.get(x));
+                } else if (users.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(users.get(x));
+                } else if (users.get(x).year.get().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(users.get(x));
+                } else {
+
+                }
+            }
+            for (int i = 1; i < s1.size(); i++){
+                for (int x = 0; x < users.size(); x++){
+                    System.out.println("Comparing: " + users.get(x).make.get().toUpperCase() + " with " + s1.get(i).toUpperCase());
+                    if (tempResults.get(x).make.get().toUpperCase().equals(s1.get(i).toUpperCase())){
+                        searchResults.add(users.get(x));
+                    } else if (tempResults.get(x).model.get().toUpperCase().equals(s1.get(i).toUpperCase())){
+                        searchResults.add(users.get(x));
+                    } else if (tempResults.get(x).year.get().equals(s1.get(i).toUpperCase())){
+                        searchResults.add(users.get(x));
+                    } else {
+                        // Partir descripcion
+                    }
+                }
+            }
+        } else {
+
+            ArrayList<String> s2 = new ArrayList<>();
+
+            for (int x = 0; x < users.size(); x++){
+                s2.clear();
+                if (users.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(users.get(x));
+                } else if (users.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(users.get(x));
+                } else if (users.get(x).year.get().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(users.get(x));
+                } else {
+                    for(String w:users.get(x).description.get().toUpperCase().split("\\s",0)){
+                        s2.add(w);
+                    }
+                    System.out.println(s2);
+                    for (int z = 0; z < s2.size(); z++){
+                        System.out.println("Comparing: " + s2.get(z).toUpperCase() + " with " + s1.get(0).toUpperCase());
+                        if (s2.get(z).toUpperCase().equals(s1.get(0).toUpperCase())){
+                            System.out.println("Match");
+                            searchResults.add(users.get(x));
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println(searchResults.get(0).make.get());
+        System.out.println(searchResults.get(0).model.get());
+        System.out.println(searchResults.get(0).year.get());
+        System.out.println(searchResults.get(0).description.get());
+        System.out.println(searchResults.get(0).quantity.get());
+        System.out.println(searchResults.get(0).condition.get());
+        System.out.println(searchResults.get(0).location.get());
     }
 
     // Change the RH panel to whatever function (inventario or lista) is chose
