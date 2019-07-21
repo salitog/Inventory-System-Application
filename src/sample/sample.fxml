@@ -3,6 +3,8 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXTreeTableView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -55,11 +57,6 @@
                                     <Text layoutX="300.0" layoutY="348.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Logo del taller en el centro en un color parecido al del fondo" />
                                  </children>
                               </Pane>
-                              <Pane fx:id="pnl_viewInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;">
-                                 <children>
-                                    <JFXTreeTableView fx:id="treeView" layoutX="4.0" prefHeight="610.0" prefWidth="1002.0" />
-                                 </children>
-                              </Pane>
                               <Pane fx:id="pnl_remPart" layoutY="50.0" mouseTransparent="true" prefHeight="610.0" prefWidth="1006.0" />
                               <Pane fx:id="pnl_inv_topBar" prefHeight="50.0" prefWidth="1006.0" style="-fx-background-color: #13567d;">
                                  <children>
@@ -92,6 +89,67 @@
                                  <children>
                                     <JFXTreeTableView fx:id="searchTree" layoutX="14.0" layoutY="38.0" prefHeight="569.0" prefWidth="590.0" />
                                     <JFXTextField fx:id="searchBar" focusColor="#ffa929" layoutX="14.0" layoutY="9.0" onAction="#onEnter" prefHeight="26.0" prefWidth="590.0" promptText="Search" unFocusColor="#0b6599" />
+                                    <Pane fx:id="pnl_extraInfo" layoutX="611.0" layoutY="35.0" prefHeight="569.0" prefWidth="387.0" style="-fx-background-color: #13567d;">
+                                       <children>
+                                          <Label fx:id="lbl_make" layoutX="20.0" layoutY="117.0" text="Make" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_model" layoutX="138.0" layoutY="117.0" text="Model" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_year" layoutX="264.0" layoutY="117.0" text="Year" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_description" layoutX="20.0" layoutY="196.0" text="Description" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_quantity" layoutX="263.0" layoutY="196.0" text="Quantity" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_condition" layoutX="21.0" layoutY="284.0" text="Condition" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_location" layoutX="138.0" layoutY="283.0" text="Location" textFill="WHITE">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="14.0" layoutY="25.0" prefHeight="18.0" prefWidth="353.0" text="Informacion Extra" textFill="WHITE">
+                                             <font>
+                                                <Font size="25.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lbl_make1" layoutX="21.0" layoutY="99.0" text="Marca" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_model1" layoutX="139.0" layoutY="100.0" text="Modelo" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_year1" layoutX="264.0" layoutY="100.0" text="Año" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_description1" layoutX="21.0" layoutY="178.0" text="Descripcion" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_quantity1" layoutX="263.0" layoutY="178.0" text="Cantidad" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_make11" layoutX="21.0" layoutY="264.0" text="Condicion" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_model11" layoutX="139.0" layoutY="265.0" text="Ubicacion" textFill="#bcbcbc" />
+                                          <Button layoutX="21.0" layoutY="359.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238#e63238;" text="Agregar al Carrito" textFill="WHITE">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                    </Pane>
+                                 </children>
+                              </Pane>
+                              <Pane fx:id="pnl_viewInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;">
+                                 <children>
+                                    <JFXTreeTableView fx:id="treeView" layoutX="4.0" prefHeight="610.0" prefWidth="1002.0" />
                                  </children>
                               </Pane>
                            </children>

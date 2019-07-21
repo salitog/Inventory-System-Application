@@ -10,6 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -34,7 +35,7 @@ public class Controller implements Initializable {
     // Declaration of variables and components
     @FXML
     private Pane pnl_options, pnl_inv, pnl_list, pnl_idle, pnl_sideBar, pnl_idleInv, pnl_viewInv,
-            pnl_inv_topBar, pnl_remPart, pnl_search;
+            pnl_inv_topBar, pnl_remPart, pnl_search, pnl_extraInfo;
 
     @FXML
     private StackPane pnl_addPart;
@@ -53,6 +54,9 @@ public class Controller implements Initializable {
 
     @FXML
     private JFXTextField searchBar;
+
+    @FXML
+    private Label lbl_make, lbl_model, lbl_year, lbl_description, lbl_quantity, lbl_condition, lbl_location;
 
     ObservableList<Part> users = FXCollections.observableArrayList();
     ObservableList<Part> searchResults = FXCollections.observableArrayList();
@@ -374,9 +378,9 @@ public class Controller implements Initializable {
 
     public void searchPart(ActionEvent event){
         searchResults.clear();
-
+        pnl_extraInfo.setVisible(false);
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
-        makeColumn.setPrefWidth(150);
+        makeColumn.setPrefWidth(75);
         makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -385,7 +389,7 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>("Modelo");
-        modelColumn.setPrefWidth(150);
+        modelColumn.setPrefWidth(100);
         modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -394,7 +398,7 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
-        yearColumn.setPrefWidth(150);
+        yearColumn.setPrefWidth(50);
         yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -403,11 +407,25 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
-        descriptionColumn.setPrefWidth(150);
+        descriptionColumn.setPrefWidth(375);
         descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
                 return param.getValue().getValue().description;
+            }
+        });
+
+        searchTree.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                pnl_extraInfo.setVisible(true);
+                lbl_make.setText(searchTree.getSelectionModel().getSelectedItem().getValue().make.get());
+                lbl_model.setText(searchTree.getSelectionModel().getSelectedItem().getValue().model.get());
+                lbl_year.setText(searchTree.getSelectionModel().getSelectedItem().getValue().year.get());
+                lbl_description.setText(searchTree.getSelectionModel().getSelectedItem().getValue().description.get());
+                lbl_quantity.setText(searchTree.getSelectionModel().getSelectedItem().getValue().quantity.get());
+                lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
+                lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
             }
         });
 
@@ -435,71 +453,104 @@ public class Controller implements Initializable {
             s1.add(w);
         }
 
+        ObservableList<Part> usersCopy = FXCollections.observableArrayList();
+        for (int i = 0; i < users.size(); i++){
+            usersCopy.add(users.get(i));
+        }
+
         if (s1.size() > 1){
 
             ObservableList<Part> tempResults = FXCollections.observableArrayList();
             ArrayList<String> s2 = new ArrayList<>();
 
-            for (int x = 0; x < users.size(); x++){
-                if (users.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
-                    tempResults.add(users.get(x));
-                } else if (users.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
-                    tempResults.add(users.get(x));
-                } else if (users.get(x).year.get().equals(s1.get(0).toUpperCase())){
-                    tempResults.add(users.get(x));
-                } else {
-
-                }
-            }
-            for (int i = 1; i < s1.size(); i++){
-                for (int x = 0; x < users.size(); x++){
-                    System.out.println("Comparing: " + users.get(x).make.get().toUpperCase() + " with " + s1.get(i).toUpperCase());
-                    if (tempResults.get(x).make.get().toUpperCase().equals(s1.get(i).toUpperCase())){
-                        searchResults.add(users.get(x));
-                    } else if (tempResults.get(x).model.get().toUpperCase().equals(s1.get(i).toUpperCase())){
-                        searchResults.add(users.get(x));
-                    } else if (tempResults.get(x).year.get().equals(s1.get(i).toUpperCase())){
-                        searchResults.add(users.get(x));
-                    } else {
-                        // Partir descripcion
-                    }
-                }
-            }
-        } else {
-
-            ArrayList<String> s2 = new ArrayList<>();
-
-            for (int x = 0; x < users.size(); x++){
+            for (int x = 0; x < usersCopy.size(); x++){
                 s2.clear();
-                if (users.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
-                    searchResults.add(users.get(x));
-                } else if (users.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
-                    searchResults.add(users.get(x));
-                } else if (users.get(x).year.get().equals(s1.get(0).toUpperCase())){
-                    searchResults.add(users.get(x));
+                if (usersCopy.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
+                } else if (usersCopy.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
+                } else if (usersCopy.get(x).year.get().equals(s1.get(0).toUpperCase())){
+                    tempResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
                 } else {
-                    for(String w:users.get(x).description.get().toUpperCase().split("\\s",0)){
+                    for(String w:usersCopy.get(x).description.get().toUpperCase().split("\\s",0)){
                         s2.add(w);
                     }
-                    System.out.println(s2);
                     for (int z = 0; z < s2.size(); z++){
-                        System.out.println("Comparing: " + s2.get(z).toUpperCase() + " with " + s1.get(0).toUpperCase());
                         if (s2.get(z).toUpperCase().equals(s1.get(0).toUpperCase())){
-                            System.out.println("Match");
-                            searchResults.add(users.get(x));
+                            tempResults.add(usersCopy.get(x));
+                            usersCopy.remove(x);
+                            x -= 1;
+                            z = s2.size();
                         }
                     }
                 }
             }
-        }
-
-        System.out.println(searchResults.get(0).make.get());
-        System.out.println(searchResults.get(0).model.get());
-        System.out.println(searchResults.get(0).year.get());
-        System.out.println(searchResults.get(0).description.get());
-        System.out.println(searchResults.get(0).quantity.get());
-        System.out.println(searchResults.get(0).condition.get());
-        System.out.println(searchResults.get(0).location.get());
+            for (int i = 1; i < s1.size(); i++){
+                for (int x = 0; x < tempResults.size(); x++){
+                    s2.clear();
+                    boolean pass = false;
+                    if (tempResults.get(x).make.get().toUpperCase().equals(s1.get(i).toUpperCase())){
+                        pass = true;
+                    } else if (tempResults.get(x).model.get().toUpperCase().equals(s1.get(i).toUpperCase())){
+                        pass = true;
+                    } else if (tempResults.get(x).year.get().toUpperCase().equals(s1.get(i).toUpperCase())){
+                        pass = true;
+                    } else {
+                        for (String w:tempResults.get(x).description.get().toUpperCase().split("\\s",0)){
+                            s2.add(w);
+                        }
+                        for (int z = 0; z < s2.size(); z++){
+                            if (s2.get(z).toUpperCase().equals(s1.get(i).toUpperCase())){
+                                pass = true;
+                            }
+                        }
+                    }
+                    if (!pass){
+                        tempResults.remove(x);
+                        x--;
+                    }
+                }
+            }
+            for (int i = 0; i < tempResults.size(); i++){
+                searchResults.add(tempResults.get(i));
+            }
+        } else { // One Word Search
+            ArrayList<String> s2 = new ArrayList<>();
+            for (int x = 0; x < usersCopy.size(); x++){
+                s2.clear();
+                if (usersCopy.get(x).make.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
+                } else if (usersCopy.get(x).model.get().toUpperCase().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
+                } else if (usersCopy.get(x).year.get().equals(s1.get(0).toUpperCase())){
+                    searchResults.add(usersCopy.get(x));
+                    usersCopy.remove(x);
+                    x -= 1;
+                } else {
+                    for(String w:usersCopy.get(x).description.get().toUpperCase().split("\\s",0)){
+                        s2.add(w);
+                    }
+                    for (int z = 0; z < s2.size(); z++){
+                        if (s2.get(z).toUpperCase().equals(s1.get(0).toUpperCase())){
+                            searchResults.add(usersCopy.get(x));
+                            usersCopy.remove(x);
+                            x -= 1;
+                            z = s2.size();
+                        }
+                    }
+                }
+            }
+        } // One Word Search
     }
 
     // Change the RH panel to whatever function (inventario or lista) is chose
@@ -575,6 +626,10 @@ public class Controller implements Initializable {
             this.quantity = new SimpleStringProperty(quantity);
             this.condition = new SimpleStringProperty(condition);
             this.location = new SimpleStringProperty(location);
+        }
+
+        public String print(){
+            return (make.get() + " " + model.get() + " " + year.get() + " " + description.get() + " " + quantity.get() + " " + condition.get() + " " + location.get());
         }
 
     }
