@@ -3,7 +3,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXTreeTableView?>
-<?import javafx.scene.control.Button?>
+<?import com.jfoenix.controls.JFXTreeView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -11,10 +11,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="660.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <StackPane fx:id="pnl_addPart" prefHeight="660.0" prefWidth="1050.0">
          <children>
@@ -37,7 +38,7 @@
                         </JFXButton>
                      </children>
                   </AnchorPane>
-                  <AnchorPane layoutX="44.0" prefHeight="660.0" prefWidth="1008.0" style="-fx-background-color: #999c9e;">
+                  <AnchorPane layoutX="54.0" prefHeight="660.0" prefWidth="998.0" style="-fx-background-color: #999c9e;">
                      <children>
                         <Pane fx:id="pnl_idle" layoutX="237.0" prefHeight="660.0" prefWidth="769.0" style="-fx-background-color: #ffffff;">
                            <children>
@@ -51,13 +52,6 @@
                         <AnchorPane fx:id="pnl_list" layoutX="-1.0" prefHeight="660.0" prefWidth="1008.0" style="-fx-background-color: #999999;" />
                         <AnchorPane fx:id="pnl_inv" prefHeight="660.0" prefWidth="1006.0" style="-fx-background-color: #999c9e;">
                            <children>
-                              <Pane fx:id="pnl_idleInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999c9e;">
-                                 <children>
-                                    <Text layoutX="233.0" layoutY="203.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hay tantos repuestos en inventario" wrappingWidth="237.0" />
-                                    <Text layoutX="300.0" layoutY="348.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Logo del taller en el centro en un color parecido al del fondo" />
-                                 </children>
-                              </Pane>
-                              <Pane fx:id="pnl_remPart" layoutY="50.0" mouseTransparent="true" prefHeight="610.0" prefWidth="1006.0" />
                               <Pane fx:id="pnl_inv_topBar" prefHeight="50.0" prefWidth="1006.0" style="-fx-background-color: #13567d;">
                                  <children>
                                     <JFXButton fx:id="btn_viewInv" layoutX="1.0" onAction="#viewInventory" prefHeight="50.0" prefWidth="148.0" style="-fx-background-color: #13567d;" text="Ver Inventario" textFill="WHITE">
@@ -70,20 +64,28 @@
                                           <Font size="17.0" />
                                        </font>
                                     </JFXButton>
-                                    <JFXButton fx:id="btn_revPart" layoutX="303.0" onAction="#removePart" prefHeight="50.0" prefWidth="148.0" style="-fx-background-color: #13567d;" text="Eliminar Parte" textFill="WHITE">
+                                    <JFXButton fx:id="btn_revPart" alignment="BASELINE_LEFT" layoutX="303.0" onAction="#removePart" prefHeight="50.0" prefWidth="163.0" text="Eliminar Parte" textAlignment="JUSTIFY" textFill="WHITE">
                                        <font>
                                           <Font size="17.0" />
                                        </font>
                                     </JFXButton>
-                                    <JFXButton fx:id="btn_search" layoutX="451.0" onAction="#searchPart" prefHeight="50.0" prefWidth="148.0" style="-fx-background-color: #13567d;" text="Buscar" textFill="WHITE">
+                                    <JFXButton fx:id="btn_search" layoutX="468.0" onAction="#searchPart" prefHeight="50.0" prefWidth="148.0" style="-fx-background-color: #13567d;" text="Buscar" textFill="WHITE">
                                        <font>
                                           <Font size="17.0" />
                                        </font>
                                     </JFXButton>
+                                    <Circle fx:id="circle_notify" fill="#0ba837" layoutX="445.0" layoutY="25.0" radius="12.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                    <Label fx:id="label_notify" alignment="CENTER" layoutX="434.0" layoutY="16.0" prefHeight="18.0" prefWidth="24.0" text="0" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" wrapText="true" />
                                  </children>
                                  <effect>
                                     <DropShadow />
                                  </effect>
+                              </Pane>
+                              <Pane fx:id="pnl_idleInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999c9e;">
+                                 <children>
+                                    <Text layoutX="233.0" layoutY="203.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hay tantos repuestos en inventario" wrappingWidth="237.0" />
+                                    <Text layoutX="300.0" layoutY="348.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Logo del taller en el centro en un color parecido al del fondo" />
+                                 </children>
                               </Pane>
                               <Pane fx:id="pnl_search" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;">
                                  <children>
@@ -111,7 +113,7 @@
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="lbl_quantity" layoutX="263.0" layoutY="196.0" text="Quantity" textFill="WHITE">
+                                          <Label fx:id="lbl_quantity" layoutX="210.0" layoutY="282.0" text="Quantity" textFill="WHITE">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -121,7 +123,7 @@
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="lbl_location" layoutX="138.0" layoutY="283.0" text="Location" textFill="WHITE">
+                                          <Label fx:id="lbl_location" layoutX="21.0" layoutY="360.0" text="Location" textFill="WHITE">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -135,33 +137,59 @@
                                           <Label fx:id="lbl_model1" layoutX="139.0" layoutY="100.0" text="Modelo" textFill="#bcbcbc" />
                                           <Label fx:id="lbl_year1" layoutX="264.0" layoutY="100.0" text="Año" textFill="#bcbcbc" />
                                           <Label fx:id="lbl_description1" layoutX="21.0" layoutY="178.0" text="Descripcion" textFill="#bcbcbc" />
-                                          <Label fx:id="lbl_quantity1" layoutX="263.0" layoutY="178.0" text="Cantidad" textFill="#bcbcbc" />
+                                          <Label fx:id="lbl_quantity1" layoutX="210.0" layoutY="264.0" text="Cantidad" textFill="#bcbcbc" />
                                           <Label fx:id="lbl_make11" layoutX="21.0" layoutY="264.0" text="Condicion" textFill="#bcbcbc" />
-                                          <Label fx:id="lbl_model11" layoutX="139.0" layoutY="265.0" text="Ubicacion" textFill="#bcbcbc" />
-                                          <Button layoutX="21.0" layoutY="359.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238#e63238;" text="Agregar al Carrito" textFill="WHITE">
+                                          <Label fx:id="lbl_model11" layoutX="22.0" layoutY="342.0" text="Ubicacion" textFill="#bcbcbc" />
+                                          <JFXTextField fx:id="txt_quantity" alignment="CENTER" editable="false" focusColor="#ffa929" layoutX="214.0" layoutY="422.0" prefHeight="26.0" prefWidth="38.0" style="-fx-background-color: #176b9b #176b9b;" text="1" unFocusColor="#ffa929">
                                              <font>
                                                 <Font size="15.0" />
                                              </font>
-                                          </Button>
+                                          </JFXTextField>
+                                          <JFXButton fx:id="minus_button" alignment="BASELINE_LEFT" layoutX="190.0" layoutY="422.0" minWidth="24.0" prefHeight="30.0" style="-fx-background-color: #145c85;" text="-" textAlignment="JUSTIFY" textFill="WHITE">
+                                             <effect>
+                                                <DropShadow />
+                                             </effect>
+                                          </JFXButton>
+                                          <JFXButton fx:id="plus_button" alignment="BASELINE_LEFT" contentDisplay="CENTER" layoutX="252.0" layoutY="422.0" minWidth="24.0" prefHeight="30.0" style="-fx-background-color: #145c85;" text="+" textAlignment="JUSTIFY" textFill="WHITE">
+                                             <effect>
+                                                <DropShadow />
+                                             </effect>
+                                          </JFXButton>
+                                          <JFXButton layoutX="17.0" layoutY="419.0" onAction="#addToCart" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238#e63238 #e63238#e63238;" text="Agregar al Carrito" textFill="WHITE" />
                                        </children>
                                     </Pane>
                                  </children>
                               </Pane>
+                              <Pane fx:id="pnl_remPart" layoutY="50.0" mouseTransparent="true" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
+                                 <children>
+                                    <Label layoutX="45.0" layoutY="14.0" prefHeight="48.0" prefWidth="266.0" text="Partes a eliminar:" textFill="WHITE">
+                                       <font>
+                                          <Font size="31.0" />
+                                       </font>
+                                    </Label>
+                                    <JFXTreeView layoutX="14.0" layoutY="62.0" prefHeight="318.0" prefWidth="983.0" />
+                                    <JFXButton layoutX="802.0" layoutY="535.0" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238#e63238 #e63238#e63238 #e63238#e63238 #e63238#e63238;" text="Remover las partes" />
+                                    <Label layoutX="28.0" layoutY="405.0" text="Apartar" textFill="WHITE">
+                                       <font>
+                                          <Font size="18.0" />
+                                       </font>
+                                    </Label>
+                                 </children></Pane>
                               <Pane fx:id="pnl_viewInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;">
                                  <children>
-                                    <JFXTreeTableView fx:id="treeView" layoutX="4.0" prefHeight="610.0" prefWidth="1002.0" />
+                                    <JFXTreeTableView fx:id="treeView" layoutX="1.0" prefHeight="610.0" prefWidth="1006.0" />
                                  </children>
                               </Pane>
                            </children>
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="pnl_sideBar" prefHeight="660.0" prefWidth="44.0" style="-fx-background-color: #0b6599;">
+                  <AnchorPane fx:id="pnl_sideBar" layoutX="-7.0" prefHeight="660.0" prefWidth="60.0" style="-fx-background-color: #0b6599;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <effect>
                         <DropShadow />
                      </effect>
                      <children>
-                        <JFXButton fx:id="btn_home" layoutY="2.0" onAction="#home" prefHeight="50.0" prefWidth="44.0" />
+                        <JFXButton fx:id="btn_home" onAction="#home" prefHeight="50.0" prefWidth="60.0" />
                      </children>
                   </AnchorPane>
                </children>

@@ -4,6 +4,8 @@ import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
 import com.jfoenix.controls.events.JFXDialogEvent;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -21,14 +23,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.ResourceBundle;
+import java.sql.SQLOutput;
+import java.util.*;
 
 public class Controller implements Initializable {
 
@@ -44,7 +46,7 @@ public class Controller implements Initializable {
     private AnchorPane rootPane;
 
     @FXML
-    private JFXButton btn_inv, btn_list, btn_home, btn_viewInv, btn_addPart, btn_revPart, btn_search;
+    private JFXButton btn_inv, btn_list, btn_home, minus_button, plus_button;
 
     @FXML
     private JFXTreeTableView<Part> treeView;
@@ -53,17 +55,23 @@ public class Controller implements Initializable {
     private JFXTreeTableView<Part> searchTree;
 
     @FXML
-    private JFXTextField searchBar;
+    private JFXTextField searchBar, txt_quantity;
 
     @FXML
-    private Label lbl_make, lbl_model, lbl_year, lbl_description, lbl_quantity, lbl_condition, lbl_location;
+    private Label lbl_make, lbl_model, lbl_year, lbl_description, lbl_quantity, lbl_condition, lbl_location, label_notify;
+
+    @FXML
+    private Circle circle_notify;
+
+    private int tempIndex = 0;
 
     ObservableList<Part> users = FXCollections.observableArrayList();
     ObservableList<Part> searchResults = FXCollections.observableArrayList();
+    ObservableList<Part> removeList = FXCollections.observableArrayList();
 
-    public void viewInventory(ActionEvent event)  {
+    public void viewInventory(ActionEvent event){
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
-        makeColumn.setPrefWidth(150);
+        makeColumn.setPrefWidth(80);
         makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -72,7 +80,7 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>("Modelo");
-        modelColumn.setPrefWidth(150);
+        modelColumn.setPrefWidth(100);
         modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -116,8 +124,17 @@ public class Controller implements Initializable {
             }
         });
 
+        JFXTreeTableColumn<Part, String> locationColumn = new JFXTreeTableColumn<>("Ubicación");
+        locationColumn.setPrefWidth(120);
+        locationColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().location;
+            }
+        });
+
         final TreeItem<Part> root = new RecursiveTreeItem<Part>(users, RecursiveTreeObject::getChildren);
-        treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn);
+        treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn, locationColumn);
         treeView.setRoot(root);
         treeView.setShowRoot(false);
         pnl_viewInv.toFront();
@@ -335,19 +352,66 @@ public class Controller implements Initializable {
                 loc = locationBox.getValue().toString();
             }
 
-            users.add(new Part(make, model, year, desc, quant, condition, loc));
-            File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
-            try{
-                PrintWriter log = new PrintWriter(new FileWriter(file, true));
-                log.write(make + "\n");
-                log.write(model + "\n");
-                log.write(year + "\n");
-                log.write(desc + "\n");
-                log.write(quant + "\n");
-                log.write(condition + "\n");
-                log.write(loc + "\n");
-                log.close();
-            } catch (IOException e){}
+            if (users.size() == 0){
+                users.add(new Part(make, model, year, desc, quant, condition, loc, (users.size())));
+                System.out.println(users.get(users.size() - 1).print());
+                File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
+                try{
+                    PrintWriter log = new PrintWriter(new FileWriter(file, true));
+                    log.write(make + "\n");
+                    log.write(model + "\n");
+                    log.write(year + "\n");
+                    log.write(desc + "\n");
+                    log.write(quant + "\n");
+                    log.write(condition + "\n");
+                    log.write(loc + "\n");
+                    log.close();
+                } catch (IOException e){}
+            } else {
+                boolean existing = false;
+                for (int i = 0; i < users.size(); i++){
+                    System.out.println("Checking " + users.get(i).print());
+                    if (users.get(i).make.get().toUpperCase().equals(make.toUpperCase())){
+                        System.out.println("Match");
+                        if (users.get(i).model.get().toUpperCase().equals(model.toUpperCase())){
+                            System.out.println("Match");
+                            if (users.get(i).year.get().toUpperCase().equals(year.toUpperCase())){
+                                System.out.println("Match");
+                                if (users.get(i).description.get().toUpperCase().equals(desc.toUpperCase())){
+                                    System.out.println("Match");
+                                    if (users.get(i).condition.get().toUpperCase().equals(condition.toUpperCase())){
+                                        System.out.println("Match");
+                                        if (users.get(i).location.get().toUpperCase().equals(loc.toUpperCase())){
+                                            System.out.println("Match");
+                                            int q = Integer.parseInt(users.get(i).quantity.get());
+                                            q += Integer.parseInt(quant);
+                                            users.get(i).quantity = new SimpleStringProperty(Integer.toString(q));
+                                            existing = true;
+                                            //TODO rewrite the file with new info
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!existing){
+                    users.add(new Part(make, model, year, desc, quant, condition, loc, (users.size())));
+                    System.out.println(users.get(users.size() - 1).print());
+                    File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
+                    try{
+                        PrintWriter log = new PrintWriter(new FileWriter(file, true));
+                        log.write(make + "\n");
+                        log.write(model + "\n");
+                        log.write(year + "\n");
+                        log.write(desc + "\n");
+                        log.write(quant + "\n");
+                        log.write(condition + "\n");
+                        log.write(loc + "\n");
+                        log.close();
+                    } catch (IOException e){}
+                }
+            }
 
             rootPane.setEffect(null);
             dialog.close();
@@ -426,6 +490,29 @@ public class Controller implements Initializable {
                 lbl_quantity.setText(searchTree.getSelectionModel().getSelectedItem().getValue().quantity.get());
                 lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
                 lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
+                txt_quantity.setText("1");
+            }
+        });
+
+        minus_button.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int current = Integer.parseInt(txt_quantity.getText());
+                if (!(current <= 1)){
+                    current -= 1;
+                    txt_quantity.setText(Integer.toString(current));
+                }
+            }
+        });
+
+        plus_button.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int current = Integer.parseInt(txt_quantity.getText());
+                if (!(Integer.parseInt(lbl_quantity.getText()) == current)){
+                    current += 1;
+                    txt_quantity.setText(Integer.toString(current));
+                }
             }
         });
 
@@ -443,7 +530,6 @@ public class Controller implements Initializable {
         */
     }
 
-    @FXML
     public void onEnter(ActionEvent event){
         searchResults.clear();
         searchResults.remove(0, searchResults.size()- 1);
@@ -553,6 +639,52 @@ public class Controller implements Initializable {
         } // One Word Search
     }
 
+    public void addToCart(){
+        int removal = Integer.parseInt(txt_quantity.getText());
+        JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
+        makeColumn.setPrefWidth(150);
+        makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().make;
+            }
+        });
+        JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>(" Modelo");
+        modelColumn.setPrefWidth(150);
+        modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().model;
+            }
+        });
+        JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
+        yearColumn.setPrefWidth(80);
+        yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().year;
+            }
+        });
+        JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
+        descriptionColumn.setPrefWidth(350);
+        descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().description;
+            }
+        });
+
+        final TreeItem<Part> root = new RecursiveTreeItem<Part>(removeList, RecursiveTreeObject::getChildren);
+        treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn, locationColumn);
+        treeView.setRoot(root);
+        treeView.setShowRoot(false);
+        pnl_viewInv.toFront();
+        pnl_inv_topBar.toFront();
+
+        label_notify.setText(Integer.toString(removeList.size()));
+
+    }
+
     // Change the RH panel to whatever function (inventario or lista) is chose
     public void changeFunction(ActionEvent event){
         if (event.getSource() == btn_inv){
@@ -599,9 +731,12 @@ public class Controller implements Initializable {
                 for (int x = 0; x < 7; x++){
                     tempInfo[x] = temp.get(x + (7 * i));
                 }
-                users.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6]));
+                users.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6], i));
+                System.out.println(users.get(i).print());
             }
         } catch (IOException ex){ }
+
+
 
         pnl_idle.toFront();
         pnl_options.toFront();
@@ -617,8 +752,9 @@ public class Controller implements Initializable {
         StringProperty quantity;
         StringProperty condition;
         StringProperty location;
+        IntegerProperty index;
 
-        public Part(String make, String model, String year, String description, String quantity, String condition, String location){
+        public Part(String make, String model, String year, String description, String quantity, String condition, String location, int index){
             this.make = new SimpleStringProperty(make);
             this.model = new SimpleStringProperty(model);
             this.year = new SimpleStringProperty(year);
@@ -626,10 +762,11 @@ public class Controller implements Initializable {
             this.quantity = new SimpleStringProperty(quantity);
             this.condition = new SimpleStringProperty(condition);
             this.location = new SimpleStringProperty(location);
+            this.index = new SimpleIntegerProperty(index);
         }
 
         public String print(){
-            return (make.get() + " " + model.get() + " " + year.get() + " " + description.get() + " " + quantity.get() + " " + condition.get() + " " + location.get());
+            return (make.get() + " " + model.get() + " " + year.get() + " " + description.get() + " " + quantity.get() + " " + condition.get() + " " + location.get() + " | " + index.get());
         }
 
     }
