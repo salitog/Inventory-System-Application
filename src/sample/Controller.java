@@ -17,12 +17,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
@@ -43,10 +43,10 @@ public class Controller implements Initializable {
     private StackPane pnl_addPart;
 
     @FXML
-    private AnchorPane rootPane;
+    private AnchorPane rootPane, pnl_remove;
 
     @FXML
-    private JFXButton btn_inv, btn_list, btn_home, minus_button, plus_button;
+    private JFXButton btn_inv, btn_list, btn_home, minus_button, plus_button, btn_viewInv, btn_revPart, btn_search;
 
     @FXML
     private JFXTreeTableView<Part> treeView;
@@ -55,19 +55,26 @@ public class Controller implements Initializable {
     private JFXTreeTableView<Part> searchTree;
 
     @FXML
+    private JFXTreeTableView<Part> removeTree;
+
+    @FXML
+    private JFXTreeTableView<Part> treeRemove;
+
+    @FXML
+    private JFXTreeTableView<Part> testTree;
+
+    @FXML
     private JFXTextField searchBar, txt_quantity;
 
     @FXML
     private Label lbl_make, lbl_model, lbl_year, lbl_description, lbl_quantity, lbl_condition, lbl_location, label_notify;
-
-    @FXML
-    private Circle circle_notify;
 
     private int tempIndex = 0;
 
     ObservableList<Part> users = FXCollections.observableArrayList();
     ObservableList<Part> searchResults = FXCollections.observableArrayList();
     ObservableList<Part> removeList = FXCollections.observableArrayList();
+    ObservableList<Part> testList = FXCollections.observableArrayList();
 
     public void viewInventory(ActionEvent event){
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
@@ -107,7 +114,7 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> quantityColumn = new JFXTreeTableColumn<>("Cantidad");
-        quantityColumn.setPrefWidth(100);
+        quantityColumn.setPrefWidth(70);
         quantityColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -125,7 +132,7 @@ public class Controller implements Initializable {
         });
 
         JFXTreeTableColumn<Part, String> locationColumn = new JFXTreeTableColumn<>("Ubicación");
-        locationColumn.setPrefWidth(120);
+        locationColumn.setPrefWidth(150);
         locationColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -354,7 +361,6 @@ public class Controller implements Initializable {
 
             if (users.size() == 0){
                 users.add(new Part(make, model, year, desc, quant, condition, loc, (users.size())));
-                System.out.println(users.get(users.size() - 1).print());
                 File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
                 try{
                     PrintWriter log = new PrintWriter(new FileWriter(file, true));
@@ -370,19 +376,12 @@ public class Controller implements Initializable {
             } else {
                 boolean existing = false;
                 for (int i = 0; i < users.size(); i++){
-                    System.out.println("Checking " + users.get(i).print());
                     if (users.get(i).make.get().toUpperCase().equals(make.toUpperCase())){
-                        System.out.println("Match");
                         if (users.get(i).model.get().toUpperCase().equals(model.toUpperCase())){
-                            System.out.println("Match");
                             if (users.get(i).year.get().toUpperCase().equals(year.toUpperCase())){
-                                System.out.println("Match");
                                 if (users.get(i).description.get().toUpperCase().equals(desc.toUpperCase())){
-                                    System.out.println("Match");
                                     if (users.get(i).condition.get().toUpperCase().equals(condition.toUpperCase())){
-                                        System.out.println("Match");
                                         if (users.get(i).location.get().toUpperCase().equals(loc.toUpperCase())){
-                                            System.out.println("Match");
                                             int q = Integer.parseInt(users.get(i).quantity.get());
                                             q += Integer.parseInt(quant);
                                             users.get(i).quantity = new SimpleStringProperty(Integer.toString(q));
@@ -397,7 +396,6 @@ public class Controller implements Initializable {
                 }
                 if (!existing){
                     users.add(new Part(make, model, year, desc, quant, condition, loc, (users.size())));
-                    System.out.println(users.get(users.size() - 1).print());
                     File file = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
                     try{
                         PrintWriter log = new PrintWriter(new FileWriter(file, true));
@@ -435,8 +433,104 @@ public class Controller implements Initializable {
         //</editor-fold>
     }
 
-    public void removePart(ActionEvent event){
-        pnl_remPart.toFront();
+    public void remove(ActionEvent event){  // V2
+        JFXTreeTableColumn<Part, String> makeC = new JFXTreeTableColumn<>("Marca");
+        makeC.setPrefWidth(80);
+        makeC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().make;
+            }
+        });
+        JFXTreeTableColumn<Part, String> modelC = new JFXTreeTableColumn<>("Modelo");
+        modelC.setPrefWidth(100);
+        modelC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().model;
+            }
+        });
+        JFXTreeTableColumn<Part, String> yearC = new JFXTreeTableColumn<>("Año");
+        yearC.setPrefWidth(50);
+        yearC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().year;
+            }
+        });
+        JFXTreeTableColumn<Part, String> descC = new JFXTreeTableColumn<>("Descripcion");
+        descC.setPrefWidth(350);
+        descC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().description;
+            }
+        });
+        JFXTreeTableColumn<Part, String> quantC = new JFXTreeTableColumn<>("Cantidad");
+        quantC.setPrefWidth(70);
+        quantC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().quantity;
+            }
+        });
+        JFXTreeTableColumn<Part, String> locC = new JFXTreeTableColumn<>("Ubicación");
+        locC.setPrefWidth(130);
+        locC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().location;
+            }
+        });
+        JFXTreeTableColumn<Part, String> condC = new JFXTreeTableColumn<>("Condición");
+        condC.setPrefWidth(150);
+        condC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
+                return param.getValue().getValue().condition;
+            }
+        });
+        JFXTreeTableColumn<Part, String> removeB = new JFXTreeTableColumn<>("Others");
+        removeB.setPrefWidth(55);
+        Callback<TreeTableColumn<Part, String>, TreeTableCell<Part, String>> cellFactory
+                = //
+                new Callback<TreeTableColumn<Part, String>, TreeTableCell<Part, String>>() {
+                    @Override
+                    public TreeTableCell call(final TreeTableColumn<Part, String> param) {
+                        final TreeTableCell<Part, String> cell = new TreeTableCell<Part, String>() {
+
+                            final JFXButton btn = new JFXButton("-");
+
+                            @Override
+                            public void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (empty) {
+                                    setGraphic(null);
+                                    setText(null);
+                                } else {
+                                    btn.setPrefWidth(55);
+                                    btn.setStyle("-fx-background-color:  #e63238; -fx-text-fill: White;");
+                                    btn.setOnAction(event -> {
+
+                                        removeList.remove(getIndex());
+                                    });
+                                    setGraphic(btn);
+                                    setText(null);
+                                }
+                            }
+                        };
+                        return cell;
+                    }
+                };
+
+        removeB.setCellFactory(cellFactory);
+
+
+        final TreeItem<Part> root = new RecursiveTreeItem<Part>(removeList, RecursiveTreeObject::getChildren);
+        treeRemove.getColumns().setAll(makeC, modelC, yearC, descC, quantC, condC, locC, removeB);
+        treeRemove.setRoot(root);
+        treeRemove.setShowRoot(false);
+        pnl_remove.toFront();
         pnl_inv_topBar.toFront();
     }
 
@@ -479,18 +573,23 @@ public class Controller implements Initializable {
             }
         });
 
+
         searchTree.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                pnl_extraInfo.setVisible(true);
-                lbl_make.setText(searchTree.getSelectionModel().getSelectedItem().getValue().make.get());
-                lbl_model.setText(searchTree.getSelectionModel().getSelectedItem().getValue().model.get());
-                lbl_year.setText(searchTree.getSelectionModel().getSelectedItem().getValue().year.get());
-                lbl_description.setText(searchTree.getSelectionModel().getSelectedItem().getValue().description.get());
-                lbl_quantity.setText(searchTree.getSelectionModel().getSelectedItem().getValue().quantity.get());
-                lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
-                lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
-                txt_quantity.setText("1");
+                if (!(searchResults.size() == 0)){
+                    pnl_extraInfo.setVisible(true);
+                    lbl_make.setText(searchTree.getSelectionModel().getSelectedItem().getValue().make.get());
+                    lbl_model.setText(searchTree.getSelectionModel().getSelectedItem().getValue().model.get());
+                    lbl_year.setText(searchTree.getSelectionModel().getSelectedItem().getValue().year.get());
+                    lbl_description.setText(searchTree.getSelectionModel().getSelectedItem().getValue().description.get());
+                    lbl_quantity.setText(searchTree.getSelectionModel().getSelectedItem().getValue().quantity.get());
+                    lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
+                    lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
+                    tempIndex = searchTree.getSelectionModel().getFocusedIndex();
+                    System.out.println(tempIndex);
+                    txt_quantity.setText("1");
+                }
             }
         });
 
@@ -525,7 +624,7 @@ public class Controller implements Initializable {
         pnl_inv_topBar.toFront();
         /* This is for later development (search without pressing enter)
         searchBar.setOnKeyReleased(e ->{
-            System.out.println(searchBar.getText());
+
         });
         */
     }
@@ -637,52 +736,57 @@ public class Controller implements Initializable {
                 }
             }
         } // One Word Search
-    }
+    }  // For searching
 
     public void addToCart(){
-        int removal = Integer.parseInt(txt_quantity.getText());
-        JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
-        makeColumn.setPrefWidth(150);
-        makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
-                return param.getValue().getValue().make;
+        if (Integer.parseInt(txt_quantity.getText()) == Integer.parseInt(lbl_quantity.getText())){
+            System.out.println(searchResults);
+            System.out.println(tempIndex);
+            System.out.println(searchResults.get(tempIndex).print());
+            removeList.add(users.get(searchResults.get(tempIndex).index.get()));
+            removeList.get(removeList.size() - 1).full = true;
+            users.remove(searchResults.get(tempIndex).index.get());
+            searchResults.remove(searchTree.getSelectionModel().getSelectedIndex());
+            for (int i =0; i < users.size(); i++){
+                users.get(i).index.set(i);
             }
-        });
-        JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>(" Modelo");
-        modelColumn.setPrefWidth(150);
-        modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
-                return param.getValue().getValue().model;
-            }
-        });
-        JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
-        yearColumn.setPrefWidth(80);
-        yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
-                return param.getValue().getValue().year;
-            }
-        });
-        JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
-        descriptionColumn.setPrefWidth(350);
-        descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
-                return param.getValue().getValue().description;
-            }
-        });
+            lbl_make.setText(searchTree.getSelectionModel().getSelectedItem().getValue().make.get());
+            lbl_model.setText(searchTree.getSelectionModel().getSelectedItem().getValue().model.get());
+            lbl_year.setText(searchTree.getSelectionModel().getSelectedItem().getValue().year.get());
+            lbl_description.setText(searchTree.getSelectionModel().getSelectedItem().getValue().description.get());
+            lbl_quantity.setText(searchTree.getSelectionModel().getSelectedItem().getValue().quantity.get());
+            lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
+            lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
+            label_notify.setText(Integer.toString(removeList.size()));
+            System.out.println(tempIndex);
+            tempIndex -= 1;
+            System.out.println(tempIndex);
 
-        final TreeItem<Part> root = new RecursiveTreeItem<Part>(removeList, RecursiveTreeObject::getChildren);
-        treeView.getColumns().setAll(makeColumn, modelColumn, yearColumn, descriptionColumn, quantityColumn, conditionColumn, locationColumn);
-        treeView.setRoot(root);
-        treeView.setShowRoot(false);
-        pnl_viewInv.toFront();
-        pnl_inv_topBar.toFront();
-
-        label_notify.setText(Integer.toString(removeList.size()));
-
+        } else { //lbl => la cantidad del repuesto  txt => la cantidad a quitar
+            int dif = Integer.parseInt(lbl_quantity.getText()) - Integer.parseInt(txt_quantity.getText());
+            boolean existing = false;
+            for (int i = 0; i < removeList.size(); i++){
+                if (searchTree.getSelectionModel().getSelectedItem().getValue().make == removeList.get(i).make){
+                    if (searchTree.getSelectionModel().getSelectedItem().getValue().model == removeList.get(i).model){
+                        if (searchTree.getSelectionModel().getSelectedItem().getValue().year == removeList.get(i).year){
+                            if (searchTree.getSelectionModel().getSelectedItem().getValue().description == removeList.get(i).description){
+                                if (searchTree.getSelectionModel().getSelectedItem().getValue().condition == removeList.get(i).condition){
+                                    if (searchTree.getSelectionModel().getSelectedItem().getValue().location == removeList.get(i).location){
+                                        removeList.get(i).quantity.set(Integer.toString(Integer.parseInt(removeList.get(i).quantity.get() + Integer.parseInt(txt_quantity.getText()))));
+                                        existing = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!existing){
+                removeList.add(new Part(searchResults.get(tempIndex).make.get(), searchResults.get(tempIndex).model.get(),
+                        searchResults.get(tempIndex).year.get(), searchResults.get(tempIndex).description.get(), txt_quantity.getText(),
+                        searchResults.get(tempIndex).condition.get(), searchResults.get(tempIndex).location.get(), searchResults.get(tempIndex).index.get()));
+            }
+        }
     }
 
     // Change the RH panel to whatever function (inventario or lista) is chose
@@ -732,7 +836,6 @@ public class Controller implements Initializable {
                     tempInfo[x] = temp.get(x + (7 * i));
                 }
                 users.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6], i));
-                System.out.println(users.get(i).print());
             }
         } catch (IOException ex){ }
 
@@ -753,6 +856,8 @@ public class Controller implements Initializable {
         StringProperty condition;
         StringProperty location;
         IntegerProperty index;
+        boolean full = false;
+        int previousIndex = 0;
 
         public Part(String make, String model, String year, String description, String quantity, String condition, String location, int index){
             this.make = new SimpleStringProperty(make);
