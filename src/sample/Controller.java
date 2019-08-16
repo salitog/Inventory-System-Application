@@ -25,6 +25,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import java.io.*;
@@ -37,7 +38,7 @@ public class Controller implements Initializable {
     // Declaration of variables and components
     @FXML
     private Pane pnl_options, pnl_inv, pnl_list, pnl_idle, pnl_sideBar, pnl_idleInv, pnl_viewInv,
-            pnl_inv_topBar, pnl_remPart, pnl_search, pnl_extraInfo;
+            pnl_inv_topBar, pnl_search, pnl_extraInfo;
 
     @FXML
     private StackPane pnl_addPart;
@@ -46,7 +47,7 @@ public class Controller implements Initializable {
     private AnchorPane rootPane, pnl_remove;
 
     @FXML
-    private JFXButton btn_inv, btn_list, btn_home, minus_button, plus_button, btn_viewInv, btn_revPart, btn_search;
+    private JFXButton btn_inv, btn_list, btn_home, minus_button, plus_button;
 
     @FXML
     private JFXTreeTableView<Part> treeView;
@@ -55,13 +56,7 @@ public class Controller implements Initializable {
     private JFXTreeTableView<Part> searchTree;
 
     @FXML
-    private JFXTreeTableView<Part> removeTree;
-
-    @FXML
     private JFXTreeTableView<Part> treeRemove;
-
-    @FXML
-    private JFXTreeTableView<Part> testTree;
 
     @FXML
     private JFXTextField searchBar, txt_quantity;
@@ -69,12 +64,19 @@ public class Controller implements Initializable {
     @FXML
     private Label lbl_make, lbl_model, lbl_year, lbl_description, lbl_quantity, lbl_condition, lbl_location, label_notify;
 
+    @FXML
+    private Text txt_total;
+
     private int tempIndex = 0;
 
     ObservableList<Part> users = FXCollections.observableArrayList();
     ObservableList<Part> searchResults = FXCollections.observableArrayList();
     ObservableList<Part> removeList = FXCollections.observableArrayList();
-    ObservableList<Part> testList = FXCollections.observableArrayList();
+
+    File invFile = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo");
+    File invFileBackUp = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/inventoryInfo2");
+    File removeFile = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/removeList");
+    File removeFileBackUp = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/removeList2");
 
     public void viewInventory(ActionEvent event){
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
@@ -386,7 +388,7 @@ public class Controller implements Initializable {
                                             q += Integer.parseInt(quant);
                                             users.get(i).quantity = new SimpleStringProperty(Integer.toString(q));
                                             existing = true;
-                                            //TODO rewrite the file with new info
+                                            writeInventory();
                                         }
                                     }
                                 }
@@ -436,6 +438,7 @@ public class Controller implements Initializable {
     public void remove(ActionEvent event){  // V2
         JFXTreeTableColumn<Part, String> makeC = new JFXTreeTableColumn<>("Marca");
         makeC.setPrefWidth(80);
+        makeC.setSortable(false);
         makeC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -444,6 +447,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> modelC = new JFXTreeTableColumn<>("Modelo");
         modelC.setPrefWidth(100);
+        modelC.setSortable(false);
         modelC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -452,6 +456,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> yearC = new JFXTreeTableColumn<>("Año");
         yearC.setPrefWidth(50);
+        yearC.setSortable(false);
         yearC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -460,6 +465,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> descC = new JFXTreeTableColumn<>("Descripcion");
         descC.setPrefWidth(350);
+        descC.setSortable(false);
         descC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -468,6 +474,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> quantC = new JFXTreeTableColumn<>("Cantidad");
         quantC.setPrefWidth(70);
+        quantC.setSortable(false);
         quantC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -476,6 +483,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> locC = new JFXTreeTableColumn<>("Ubicación");
         locC.setPrefWidth(130);
+        locC.setSortable(false);
         locC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -484,6 +492,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> condC = new JFXTreeTableColumn<>("Condición");
         condC.setPrefWidth(150);
+        condC.setSortable(false);
         condC.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -492,6 +501,7 @@ public class Controller implements Initializable {
         });
         JFXTreeTableColumn<Part, String> removeB = new JFXTreeTableColumn<>("Others");
         removeB.setPrefWidth(55);
+        removeB.setSortable(false);
         Callback<TreeTableColumn<Part, String>, TreeTableCell<Part, String>> cellFactory
                 = //
                 new Callback<TreeTableColumn<Part, String>, TreeTableCell<Part, String>>() {
@@ -511,8 +521,34 @@ public class Controller implements Initializable {
                                     btn.setPrefWidth(55);
                                     btn.setStyle("-fx-background-color:  #e63238; -fx-text-fill: White;");
                                     btn.setOnAction(event -> {
-
-                                        removeList.remove(getIndex());
+                                        boolean existing = false;
+                                        for (int i = 0; i < users.size(); i++){
+                                            if (users.get(i).make.get().equals(removeList.get(getIndex()).make.get())){
+                                                if (users.get(i).model.get().equals(removeList.get(getIndex()).model.get())){
+                                                    if (users.get(i).year.get().equals(removeList.get(getIndex()).year.get())){
+                                                        if (users.get(i).description.get().equals(removeList.get(getIndex()).description.get())){
+                                                            if (users.get(i).location.get().equals(removeList.get(getIndex()).location.get())){
+                                                                if (users.get(i).condition.get().equals(removeList.get(getIndex()).condition.get())){
+                                                                    System.out.println("Here 1");
+                                                                    users.get(i).quantity.set(Integer.toString(Integer.parseInt(users.get(i).quantity.get()) + Integer.parseInt(removeList.get(getIndex()).quantity.get())));
+                                                                    removeList.remove(getIndex());
+                                                                    i = users.size();
+                                                                    existing = true;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (!existing){
+                                            System.out.println("Here 2");
+                                            users.add(removeList.get(getIndex()));
+                                            removeList.remove(getIndex());
+                                        }
+                                        label_notify.setText(Integer.toString(removeList.size()));
+                                        writeRemove();
+                                        writeInventory();
                                     });
                                     setGraphic(btn);
                                     setText(null);
@@ -539,6 +575,7 @@ public class Controller implements Initializable {
         pnl_extraInfo.setVisible(false);
         JFXTreeTableColumn<Part, String> makeColumn = new JFXTreeTableColumn<>("Marca");
         makeColumn.setPrefWidth(75);
+        makeColumn.setSortable(false);
         makeColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -548,6 +585,7 @@ public class Controller implements Initializable {
 
         JFXTreeTableColumn<Part, String> modelColumn = new JFXTreeTableColumn<>("Modelo");
         modelColumn.setPrefWidth(100);
+        modelColumn.setSortable(false);
         modelColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -557,6 +595,7 @@ public class Controller implements Initializable {
 
         JFXTreeTableColumn<Part, String> yearColumn = new JFXTreeTableColumn<>("Año");
         yearColumn.setPrefWidth(50);
+        yearColumn.setSortable(false);
         yearColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -566,6 +605,7 @@ public class Controller implements Initializable {
 
         JFXTreeTableColumn<Part, String> descriptionColumn = new JFXTreeTableColumn<>("Descripción");
         descriptionColumn.setPrefWidth(375);
+        descriptionColumn.setSortable(false);
         descriptionColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Part, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<Part, String> param) {
@@ -587,7 +627,6 @@ public class Controller implements Initializable {
                     lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
                     lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
                     tempIndex = searchTree.getSelectionModel().getFocusedIndex();
-                    System.out.println(tempIndex);
                     txt_quantity.setText("1");
                 }
             }
@@ -740,13 +779,32 @@ public class Controller implements Initializable {
 
     public void addToCart(){
         if (Integer.parseInt(txt_quantity.getText()) == Integer.parseInt(lbl_quantity.getText())){
-            System.out.println(searchResults);
-            System.out.println(tempIndex);
-            System.out.println(searchResults.get(tempIndex).print());
-            removeList.add(users.get(searchResults.get(tempIndex).index.get()));
-            removeList.get(removeList.size() - 1).full = true;
-            users.remove(searchResults.get(tempIndex).index.get());
-            searchResults.remove(searchTree.getSelectionModel().getSelectedIndex());
+            boolean existing = false;
+            for (int i = 0; i < removeList.size(); i++){
+                Part compareable = removeList.get(i);
+                if (compareable.make.get().equals(searchResults.get(tempIndex).make.get())){
+                    if (compareable.model.get().equals(searchResults.get(tempIndex).model.get())){
+                        if (compareable.year.get().equals(searchResults.get(tempIndex).year.get())){
+                            if (compareable.description.get().equals(searchResults.get(tempIndex).description.get())){
+                                if (compareable.location.get().equals(searchResults.get(tempIndex).location.get())){
+                                    if (compareable.condition.get().equals(searchResults.get(tempIndex).condition.get())){
+                                        removeList.get(i).quantity.set(Integer.toString(Integer.parseInt(removeList.get(i).quantity.get()) + Integer.parseInt(txt_quantity.getText())));
+                                        int num = searchResults.get(tempIndex).index.get();
+                                        searchResults.remove(tempIndex);
+                                        users.remove(num);
+                                        existing = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!existing){
+                removeList.add(users.get(searchResults.get(tempIndex).index.get()));
+                users.remove(searchResults.get(tempIndex).index.get());
+                searchResults.remove(searchTree.getSelectionModel().getSelectedIndex());
+            }
             for (int i =0; i < users.size(); i++){
                 users.get(i).index.set(i);
             }
@@ -758,21 +816,26 @@ public class Controller implements Initializable {
             lbl_condition.setText(searchTree.getSelectionModel().getSelectedItem().getValue().condition.get());
             lbl_location.setText(searchTree.getSelectionModel().getSelectedItem().getValue().location.get());
             label_notify.setText(Integer.toString(removeList.size()));
-            System.out.println(tempIndex);
-            tempIndex -= 1;
-            System.out.println(tempIndex);
-
+            if (tempIndex > 0){
+                tempIndex -= 1;
+            } else {
+                tempIndex = 0;
+            }
+            txt_quantity.setText("1");
+            writeRemove();
+            writeInventory();
         } else { //lbl => la cantidad del repuesto  txt => la cantidad a quitar
             int dif = Integer.parseInt(lbl_quantity.getText()) - Integer.parseInt(txt_quantity.getText());
             boolean existing = false;
             for (int i = 0; i < removeList.size(); i++){
-                if (searchTree.getSelectionModel().getSelectedItem().getValue().make == removeList.get(i).make){
-                    if (searchTree.getSelectionModel().getSelectedItem().getValue().model == removeList.get(i).model){
-                        if (searchTree.getSelectionModel().getSelectedItem().getValue().year == removeList.get(i).year){
-                            if (searchTree.getSelectionModel().getSelectedItem().getValue().description == removeList.get(i).description){
-                                if (searchTree.getSelectionModel().getSelectedItem().getValue().condition == removeList.get(i).condition){
-                                    if (searchTree.getSelectionModel().getSelectedItem().getValue().location == removeList.get(i).location){
-                                        removeList.get(i).quantity.set(Integer.toString(Integer.parseInt(removeList.get(i).quantity.get() + Integer.parseInt(txt_quantity.getText()))));
+                Part compareable = removeList.get(i);
+                if (compareable.make.get().equals(searchResults.get(tempIndex).make.get())){
+                    if (compareable.model.get().equals(searchResults.get(tempIndex).model.get())){
+                        if (compareable.year.get().equals(searchResults.get(tempIndex).year.get())){
+                            if (compareable.description.get().equals(searchResults.get(tempIndex).description.get())){
+                                if (compareable.location.get().equals(searchResults.get(tempIndex).location.get())){
+                                    if (compareable.condition.get().equals(searchResults.get(tempIndex).condition.get())){
+                                        removeList.get(i).quantity.set(Integer.toString(Integer.parseInt(removeList.get(i).quantity.get()) + Integer.parseInt(txt_quantity.getText())));
                                         existing = true;
                                     }
                                 }
@@ -786,6 +849,12 @@ public class Controller implements Initializable {
                         searchResults.get(tempIndex).year.get(), searchResults.get(tempIndex).description.get(), txt_quantity.getText(),
                         searchResults.get(tempIndex).condition.get(), searchResults.get(tempIndex).location.get(), searchResults.get(tempIndex).index.get()));
             }
+            users.get(searchResults.get(tempIndex).index.getValue()).quantity.set(Integer.toString(dif));
+            lbl_quantity.setText(users.get(searchResults.get(tempIndex).index.getValue()).quantity.get());
+            label_notify.setText(Integer.toString(removeList.size()));
+            txt_quantity.setText("1");
+            writeRemove();
+            writeInventory();
         }
     }
 
@@ -798,6 +867,11 @@ public class Controller implements Initializable {
             pnl_idleInv.toFront();
             pnl_inv_topBar.toFront();
             pnl_sideBar.toFront();
+            int counter = 0;
+            for (int i = 0; i < users.size(); i++){
+                counter += Integer.parseInt(users.get(i).quantity.getValue());
+            }
+            txt_total.setText(Integer.toString(counter));
         } else if (event.getSource() == btn_list){
             pnl_options.setVisible(false);
             pnl_idle.setVisible(false);
@@ -815,6 +889,89 @@ public class Controller implements Initializable {
             pnl_options.toFront();
             pnl_sideBar.toFront();
         }
+    }
+
+    public void removeAll(ActionEvent event){
+        removeList.clear();
+        try{
+            FileWriter logs = new FileWriter(removeFile, false);
+            PrintWriter log = new PrintWriter(logs, false);
+            log.flush();
+            log.close();
+            logs.close();
+            label_notify.setText("0");
+        } catch (IOException ex){}
+    }
+
+    public void writeRemove(){
+        try{
+            FileWriter logRemove = new FileWriter(removeFileBackUp, false);
+            PrintWriter log = new PrintWriter(logRemove, false);
+            log.flush();
+
+            BufferedReader readerInventory = new BufferedReader(new FileReader(removeFile));
+            String line;
+            int counter = 0;
+            ArrayList<String> fileArray = new ArrayList<>();
+            while ((line = readerInventory.readLine()) != null){
+                fileArray.add(line);
+                counter++;
+            }
+            for (int i = 0; i < counter; i++){
+                log.write(fileArray.get(i) + "\n");
+            }
+
+            PrintWriter log2 = new PrintWriter(new FileWriter(removeFile, false), false);
+
+            for (int i = 0; i < removeList.size(); i++){
+                log2.write(removeList.get(i).make.getValue() + "\n");
+                log2.write(removeList.get(i).model.getValue() + "\n");
+                log2.write(removeList.get(i).year.getValue() + "\n");
+                log2.write(removeList.get(i).description.getValue() + "\n");
+                log2.write(removeList.get(i).quantity.getValue() + "\n");
+                log2.write(removeList.get(i).condition.getValue() + "\n");
+                log2.write(removeList.get(i).location.getValue() + "\n");
+            }
+
+            log2.close();
+            log.close();
+
+        } catch (IOException ex){}
+    }
+
+    public void writeInventory(){
+        try{
+            FileWriter logInventory = new FileWriter(invFileBackUp, false);
+            PrintWriter log = new PrintWriter(logInventory, false);
+            log.flush();
+
+            BufferedReader readerInventory = new BufferedReader(new FileReader(invFile));
+            String line;
+            int counter = 0;
+            ArrayList<String> fileArray = new ArrayList<>();
+            while ((line = readerInventory.readLine()) != null){
+                fileArray.add(line);
+                counter++;
+            }
+            for (int i = 0; i < counter; i++){
+                log.write(fileArray.get(i) + "\n");
+            }
+
+            PrintWriter log2 = new PrintWriter(new FileWriter(invFile, false), false);
+
+            for (int i = 0; i < users.size(); i++){
+                log2.write(users.get(i).make.getValue() + "\n");
+                log2.write(users.get(i).model.getValue() + "\n");
+                log2.write(users.get(i).year.getValue() + "\n");
+                log2.write(users.get(i).description.getValue() + "\n");
+                log2.write(users.get(i).quantity.getValue() + "\n");
+                log2.write(users.get(i).condition.getValue() + "\n");
+                log2.write(users.get(i).location.getValue() + "\n");
+            }
+            log2.close();
+            log.close();
+
+        } catch (IOException ex){}
     }
 
     @Override
@@ -837,6 +994,22 @@ public class Controller implements Initializable {
                 }
                 users.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6], i));
             }
+            File file2 = new File("/Users/salvag/Desktop/AutoloteProgram/src/sample/Assets/removeList");
+            reader = new BufferedReader(new FileReader(file2));
+            counter = 0;
+            ArrayList<String> temp2 = new ArrayList<>();
+            while((line = reader.readLine()) != null){
+                temp2.add(line);
+                counter++;
+            }
+            for (int i =0; i < counter/7; i++){
+                String[] tempInfo = new String[7];
+                for (int x = 0; x < 7; x++){
+                    tempInfo[x] = temp2.get(x + (7 * i));
+                }
+                removeList.add(new Part(tempInfo[0], tempInfo[1], tempInfo[2], tempInfo[3], tempInfo[4], tempInfo[5], tempInfo[6], i));
+            }
+            label_notify.setText(Integer.toString(removeList.size()));
         } catch (IOException ex){ }
 
 
@@ -856,8 +1029,6 @@ public class Controller implements Initializable {
         StringProperty condition;
         StringProperty location;
         IntegerProperty index;
-        boolean full = false;
-        int previousIndex = 0;
 
         public Part(String make, String model, String year, String description, String quantity, String condition, String location, int index){
             this.make = new SimpleStringProperty(make);

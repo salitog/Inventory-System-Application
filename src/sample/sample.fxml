@@ -80,12 +80,6 @@
                                     <DropShadow />
                                  </effect>
                               </Pane>
-                              <Pane fx:id="pnl_idleInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999c9e;">
-                                 <children>
-                                    <Text layoutX="233.0" layoutY="203.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hay tantos repuestos en inventario" wrappingWidth="237.0" />
-                                    <Text layoutX="300.0" layoutY="348.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Logo del taller en el centro en un color parecido al del fondo" />
-                                 </children>
-                              </Pane>
                               <Pane fx:id="pnl_viewInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999999;">
                                  <children>
                                     <JFXTreeTableView fx:id="treeView" layoutX="1.0" prefHeight="610.0" prefWidth="996.0" />
@@ -172,9 +166,23 @@
                                        </font>
                                     </Label>
                                     <JFXTreeTableView fx:id="treeRemove" layoutX="14.0" layoutY="54.0" prefHeight="400.0" prefWidth="965.0" />
-                                    <JFXButton layoutX="823.0" layoutY="529.0" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238;" text="Remover las partes" textFill="WHITE" />
+                                    <JFXButton fx:id="btn_removeAll" layoutX="823.0" layoutY="529.0" onAction="#removeAll" prefHeight="38.0" prefWidth="156.0" style="-fx-background-color: #e63238;" text="Remover las partes" textFill="WHITE" />
                                  </children>
                               </AnchorPane>
+                              <Pane fx:id="pnl_idleInv" layoutY="50.0" prefHeight="610.0" prefWidth="1006.0" style="-fx-background-color: #999c9e;">
+                                 <children>
+                                    <Text layoutX="14.0" layoutY="154.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Repuestos en Inventario:" wrappingWidth="556.0000305175781">
+                                       <font>
+                                          <Font name="System Bold" size="39.0" />
+                                       </font>
+                                    </Text>
+                                    <Text fx:id="txt_total" layoutX="14.0" layoutY="239.0" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="156.0">
+                                       <font>
+                                          <Font size="61.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </Pane>
                            </children>
                         </AnchorPane>
                      </children>
